@@ -1,0 +1,3 @@
+/root/tutorials-master/custom_infer_test/build/CMakeFiles/rebuild_cache.dir
+/root/tutorials-master/custom_infer_test/build/CMakeFiles/customop.dir
+/root/tutorials-master/custom_infer_test/build/CMakeFiles/edit_cache.dir
