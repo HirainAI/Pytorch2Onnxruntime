@@ -1,8 +1,11 @@
 import torch, os
 import torch.nn as nn
 from torch.autograd import Function, Variable
+from torch.onnx import register_custom_op_symbolic
 
 import fps
+
+
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 class FurthestPointSampling(Function):
@@ -41,6 +44,8 @@ class FurthestPointSampling(Function):
 
 furthest_point_sample = FurthestPointSampling.apply
 
+# def register_custom_op():
+#     register_custom_op_symbolic("mynamespace::custom_test", furthest_point_sample.symbolic(), 9)
 
 
 import torch
@@ -62,7 +67,11 @@ def export_custom_op():
 
     f = './model.onnx'
     torch.onnx.export(model, (x1,), f,
-                      opset_version=9,
+                      opset_version=12,
                       example_outputs=None,
                       input_names=["X1"], output_names=["Y"])
+
+# torch.ops.load_library(
+#     "build/lib.linux-x86_64-3.7/fps.cpython-37m-x86_64-linux-gnu.so")
+# register_custom_op()                      
 export_custom_op()

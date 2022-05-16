@@ -4,14 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/root/tutorials-master/PyTorchCustomOperator/ort_custom_op/custom_op_test.cc" "/root/tutorials-master/PyTorchCustomOperator/ort_custom_op/build/CMakeFiles/customop.dir/custom_op_test.cc.o"
+  "/root/workspace/onnxruntime_inference_test/PyTorchCustomOperator/ort_custom_op/custom_op_test.cc" "/root/workspace/onnxruntime_inference_test/PyTorchCustomOperator/ort_custom_op/build/CMakeFiles/customop.dir/custom_op_test.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/usr/local/include/eigen"
-  "/tmp/onnxInstall/build/native/include"
+  "/root/workspace/pytorch/third_party/eigen"
+  "../ONNXRUNTIME_INCLUDE_DIRS"
   )
 
 # Targets to which this target links.

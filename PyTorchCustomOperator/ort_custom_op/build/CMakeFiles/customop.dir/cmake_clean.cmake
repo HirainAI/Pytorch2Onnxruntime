@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/customop.dir/custom_op_test.cc.o"
-  "customop.pdb"
   "customop"
+  "customop.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

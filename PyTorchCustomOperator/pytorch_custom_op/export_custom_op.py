@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import torch
-
+torch.ops.load_library("build/lib.linux-x86_64-3.7/custom_group_norm.cpython-37m-x86_64-linux-gnu.so")
 
 def register_custom_op():
     def my_group_norm(g, input, num_groups, scale, bias, eps):
@@ -25,14 +25,13 @@ def export_custom_op():
 
     f = './model.onnx'
     torch.onnx.export(CustomModel(), inputs, f,
-                      opset_version=9,
+                      opset_version=12,
                       example_outputs=None,
                       input_names=["X", "num_groups", "scale", "bias"], output_names=["Y"],
                       custom_opsets={"mydomain": 1})
 
 
 
-torch.ops.load_library(
-    "build/lib.linux-x86_64-3.7/custom_group_norm.cpython-37m-x86_64-linux-gnu.so")
+
 register_custom_op()
 export_custom_op()

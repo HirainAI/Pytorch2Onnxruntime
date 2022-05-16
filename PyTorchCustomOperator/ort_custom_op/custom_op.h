@@ -3,7 +3,7 @@
  */
 
 #include <iostream>
-#include "onnxruntime_cxx_api.h"
+#include "/root/workspace/onnxruntime/include/onnxruntime/core/session/onnxruntime_cxx_api.h"
 
 struct Input {
   const char* name;

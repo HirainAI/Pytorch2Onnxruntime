@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "custom_op.h"
-#include "onnxruntime_cxx_api.h"
+#include "/root/workspace/onnxruntime/include/onnxruntime/core/session/onnxruntime_cxx_api.h"
 
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)

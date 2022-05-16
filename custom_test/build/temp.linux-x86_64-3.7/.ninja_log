@@ -1,4 +1,0 @@
-# ninja log v5
-1	8522	1649318850395999850	/root/tutorials-master/custom_test/build/temp.linux-x86_64-3.7/sampling.o	e0ca718e5543e7bb
-0	25284	1649318867152000572	/root/tutorials-master/custom_test/build/temp.linux-x86_64-3.7/pointnet2_api.o	bea3a98d4c4979bd
-1	29453	1649318871324000751	/root/tutorials-master/custom_test/build/temp.linux-x86_64-3.7/sampling_gpu.o	c3bd8a9298ee5b3c

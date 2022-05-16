@@ -69,10 +69,8 @@ if __name__ == '__main__':
                 name='fps',
                 module='.',
                 sources=[
-                    'pointnet2_api.cpp',
                     'sampling.cpp',
                     'sampling_gpu.cu',
-
                 ],
             ),
         ],

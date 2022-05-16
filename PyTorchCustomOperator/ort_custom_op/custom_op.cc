@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "Eigen/Dense"
-#include "onnxruntime_cxx_api.h"
+#include "/root/workspace/onnxruntime/include/onnxruntime/core/session/onnxruntime_cxx_api.h"
 
 using namespace std;
 

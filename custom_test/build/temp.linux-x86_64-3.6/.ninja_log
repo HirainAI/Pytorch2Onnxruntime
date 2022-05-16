@@ -1,0 +1,4 @@
+# ninja log v5
+1	1452	1652414192293901323	/root/workspace/onnxruntime_inference_test/custom_test/build/temp.linux-x86_64-3.6/sampling_gpu.o	43729b27ea648e1c
+0	1323	1652416047979371862	/root/workspace/onnxruntime_inference_test/custom_test/build/temp.linux-x86_64-3.6/sampling_gpu.o	43729b27ea648e1c
+0	1259	1652416348379355559	/root/workspace/onnxruntime_inference_test/custom_test/build/temp.linux-x86_64-3.6/sampling_gpu.o	43729b27ea648e1c

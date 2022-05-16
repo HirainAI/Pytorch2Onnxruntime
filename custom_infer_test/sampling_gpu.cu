@@ -225,8 +225,8 @@ __global__ void furthest_point_sampling_kernel(int b, int n, int m,
     
 }
 
-void furthest_point_sampling_kernel_launcher(int b, int n, int m, 
-    const float *dataset, float *temp, int *idxs) {
+void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m, 
+    const float *dataset, float *temp, int64_t *idxs) {
     // dataset: (b, n, 3) float
     // tmp: (b, n) float
     // output:
