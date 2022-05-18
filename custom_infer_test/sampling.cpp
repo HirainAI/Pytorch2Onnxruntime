@@ -20,8 +20,8 @@ All Rights Reserved 2018.
 // points_tensor: (b, n, 3) coordinates of input tensors
 // tmp_tensor:
 // output: (b, m) indices tensor of sampled points
-int furthest_point_sampling_wrapper(int b, int n, int m, 
-    const float* points, float* temp, int* idx) {
+int furthest_point_sampling_wrapper(int64_t b, int64_t n, int64_t m, 
+    const float* points, float* temp, int64_t* idx) {
 
     // construct data ptr
     // const float *points = points_tensor;

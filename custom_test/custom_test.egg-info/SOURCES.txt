@@ -1,8 +1,0 @@
-pointnet2_api.cpp
-sampling.cpp
-sampling_gpu.cu
-setup.py
-custom_test.egg-info/PKG-INFO
-custom_test.egg-info/SOURCES.txt
-custom_test.egg-info/dependency_links.txt
-custom_test.egg-info/top_level.txt

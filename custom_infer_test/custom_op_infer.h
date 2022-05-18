@@ -23,10 +23,10 @@
 #include "core/session/onnxruntime_run_options_config_keys.h"
 // #include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/utils.h"
 #include <cuda_runtime.h>
-#include "/usr/local/cuda-11.2/targets/x86_64-linux/include/driver_types.h"
-#include "/root/workspace/onnxruntime/onnxruntime/test/util/include/providers.h"
+#include "/usr/local/cuda-11.5/targets/x86_64-linux/include/driver_types.h"
+#include "/home/ding/Downloads/onnxruntime/onnxruntime/test/util/include/providers.h"
 // #include "/root/workspace/onnxruntime/onnxruntime/test/util/include/test_allocator.h"
-#include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/test_fixture.h"
+#include "/home/ding/Downloads/onnxruntime/onnxruntime/test/shared_lib/test_fixture.h"
 // #include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/custom_op_utils.h"
 #include <gsl/gsl>
 // #include "providers.h"

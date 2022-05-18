@@ -25,7 +25,7 @@
 #define USE_CUDA 1
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)
-static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/custom_infer_test/model.onnx");
+static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/home/ding/Downloads/Pytorch2Onnxruntime/custom_test/pytorch/model.onnx");
 using namespace std;
 
 // template <typename T1, typename T2, typename T3>
@@ -52,16 +52,16 @@ void FpsCustomKernel::Compute(OrtKernelContext* context){
 
           // Setup output
           // OrtTensorDimensions dimensions(ort_, input_X);    // *dimensions.data() = {1, 6, 3}, dimensions.size() = 3
-          int B = 1;  //1
-          int N = 6;  //6
-          int npoint_ = 3;
+          int64_t B = 1;  //1
+          int64_t N = 6;  //6
+          int64_t npoint_ = 3;
           std::cout << "========compute=========" << std::endl;
           int64_t dim_values[2] = {1, 3};
           const int64_t* dim_val = dim_values;
           size_t dim_count = 2;
           // Ort::MemoryInfo info_cuda("Cuda", OrtAllocatorType::OrtArenaAllocator, 0, OrtMemTypeDefault);
           OrtValue* output = ort_.KernelContext_GetOutput(context, 0, dim_val, dim_count);
-          int* out = ort_.GetTensorMutableData<int32_t>(output);
+          int64_t* out = ort_.GetTensorMutableData<int64_t>(output);
           std::cout << "output "<<*out << std::endl;
           // int* out = (int *)out_tmp;
           float temp[6] = { 1e10, 1e10, 1e10, 1e10, 1e10, 1e10};

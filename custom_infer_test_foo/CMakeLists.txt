@@ -6,7 +6,7 @@ set(TEST_SOURCE sampling.cpp sampling_gpu.cu cuda_ops.cu custom_op_test.cc test_
  
 set(HEADER custom_op_infer.h sampling_gpu.h)
 
-set(ONNXRUNTIME_ROOT_PATH /root/workspace/onnxruntime)
+set(ONNXRUNTIME_ROOT_PATH /home/ding/Downloads/onnxruntime)
 set(ONNXRUNTIME_INCLUDE_DIRS ${ONNXRUNTIME_ROOT_PATH}/include/onnxruntime
                              ${ONNXRUNTIME_ROOT_PATH}/onnxruntime
                              ${ONNXRUNTIME_ROOT_PATH}/include/onnxruntime/core/session/

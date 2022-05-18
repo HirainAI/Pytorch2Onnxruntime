@@ -4,17 +4,17 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/root/workspace/onnxruntime_inference_test/custom_infer_test/custom_op_test.cc" "/root/workspace/onnxruntime_inference_test/custom_infer_test/build/CMakeFiles/customop.dir/custom_op_test.cc.o"
-  "/root/workspace/onnxruntime_inference_test/custom_infer_test/sampling.cpp" "/root/workspace/onnxruntime_inference_test/custom_infer_test/build/CMakeFiles/customop.dir/sampling.cpp.o"
-  "/root/workspace/onnxruntime_inference_test/custom_infer_test/test_allocator.cc" "/root/workspace/onnxruntime_inference_test/custom_infer_test/build/CMakeFiles/customop.dir/test_allocator.cc.o"
+  "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/custom_op_test.cc" "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/customop.dir/custom_op_test.cc.o"
+  "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/sampling.cpp" "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/customop.dir/sampling.cpp.o"
+  "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/test_allocator.cc" "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/customop.dir/test_allocator.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/root/workspace/onnxruntime/include/onnxruntime"
-  "/root/workspace/onnxruntime/onnxruntime"
-  "/root/workspace/onnxruntime/include/onnxruntime/core/session"
+  "/home/ding/Downloads/onnxruntime/include/onnxruntime"
+  "/home/ding/Downloads/onnxruntime/onnxruntime"
+  "/home/ding/Downloads/onnxruntime/include/onnxruntime/core/session"
   "/usr/local/cuda/include"
   )
 

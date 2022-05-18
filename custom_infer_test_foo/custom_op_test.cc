@@ -25,7 +25,7 @@
 #define USE_CUDA 1
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)
-static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/custom_infer_test/foo_1.onnx");
+static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/foo_1.onnx");
 using namespace std;
 
 template <typename T1, typename T2, typename T3>

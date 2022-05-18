@@ -7,9 +7,17 @@ All Rights Reserved 2018.
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "cuda_utils.h"
 #include "sampling_gpu.h"
+#include <cmath>
+
+#define TOTAL_THREADS 1024
+#define THREADS_PER_BLOCK 256
+#define DIVUP(m,n) ((m) / (n) + ((m) % (n) > 0))
+
+inline int opt_n_threads(int work_size) {
+    const int pow_2 = std::log(static_cast<double>(work_size)) / std::log(2.0);
+    return max(min(1 << pow_2, TOTAL_THREADS), 1);
+}
 
 __global__ void gather_points_kernel_fast(int b, int c, int n, int m, 
     const float *__restrict__ points, const int *__restrict__ idx, float *__restrict__ out) {
@@ -97,22 +105,18 @@ __device__ void __update(float *__restrict__ dists, int *__restrict__ dists_i, i
 }
 
 template <unsigned int block_size>
-__global__ void furthest_point_sampling_kernel(int b, int n, int m, 
-    const float *__restrict__ dataset, float *__restrict__ temp, int *__restrict__ idxs) {
+__global__ void furthest_point_sampling_kernel(int64_t b, int64_t n, int64_t m, 
+    const float *__restrict__ dataset, float *__restrict__ temp, int64_t *__restrict__ idxs) {
     // dataset: (B, N, 3)
     // tmp: (B, N)
     // output:
     //      idx: (B, M)
-    printf("-----------------------");
-    printf("idxs1 is %d\n",m);
-    
-    printf("dataset is %f\n",dataset[0]);
-    printf("temp is %f\n",temp[0]);
+
     if (m <= 0) return;
     // shared memory can be accessed by all the threads inside the block
     __shared__ float dists[block_size];     // store distances
     __shared__ int dists_i[block_size];     // index?
-    printf("idxs2 is %d\n",m);
+
     int batch_index = blockIdx.x;           // seems that blockIdx.x means the frame idx inside the batch
     dataset += batch_index * n * 3;         // ptr offset, now the ptr dataset point to the first element in the frame
     temp += batch_index * n;
@@ -120,17 +124,14 @@ __global__ void furthest_point_sampling_kernel(int b, int n, int m,
 
     int tid = threadIdx.x;                  // tid in (1024/512/256...)
     const int stride = block_size;          // num of threads, may contains 1 / multiple points to be sampled from
-    printf("idxs3 is %d\n",threadIdx.x);
+
     int old = 0;
     if (threadIdx.x == 0)
     idxs[0] = old;                          // the first point to be sampled -> picked the first point in n directly
-    printf("idxs4 is %d\n",m);
-    printf("idxs4 is %d\n",m);
+
     // synchronizing... as shared memory accessed by all the threads in the block, make idxs[0] visible to all threads?
     __syncthreads();
-    printf("idxs5 is %d\n",m);
     for (int j = 1; j < m; j++) {           // the first point already picked (seed point), loop m-1 to be sampled pts
-    printf("idxs6 is %d\n",idxs[j]);
     int besti = 0;                          // best index
     float best = -1;                        // best distance?
     float x1 = dataset[old * 3 + 0];        // get the coordinates of current idx point
@@ -222,7 +223,6 @@ __global__ void furthest_point_sampling_kernel(int b, int n, int m,
     if (tid == 0)
         idxs[j] = old;
     }
-    
 }
 
 void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m, 
@@ -231,7 +231,7 @@ void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m,
     // tmp: (b, n) float
     // output:
     //      idx: (b, m)
-    printf("=======cuda");
+
     cudaError_t err;
     unsigned int n_threads = opt_n_threads(n);    // get the optimal num of threads? 1-dim structure
 
@@ -240,46 +240,33 @@ void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m,
     // block size equal to n_threads according to n input num of points
     switch (n_threads) {
         case 1024:
-        printf("=======1");
         furthest_point_sampling_kernel<1024><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 512:
-        printf("=======2");
         furthest_point_sampling_kernel<512><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 256:
-        printf("=======3");
         furthest_point_sampling_kernel<256><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 128:
-        printf("=======4");
         furthest_point_sampling_kernel<128><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 64:
-        printf("=======5");
         furthest_point_sampling_kernel<64><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 32:
-        printf("=======6");
         furthest_point_sampling_kernel<32><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 16:
-        printf("=======7");
         furthest_point_sampling_kernel<16><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 8:
-        printf("=======9");
         furthest_point_sampling_kernel<8><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 4:
-        printf("=======10");
         furthest_point_sampling_kernel<4><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 2:
-        printf("=======8");
         furthest_point_sampling_kernel<2><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         case 1:
-        printf("=======11");
         furthest_point_sampling_kernel<1><<<b, n_threads>>>(b, n, m, dataset, temp, idxs); break;
         default:
-        printf("=======12");
         furthest_point_sampling_kernel<512><<<b, n_threads>>>(b, n, m, dataset, temp, idxs);
     }
 
     err = cudaGetLastError();
     if (cudaSuccess != err) {
-        printf("=======22");
         fprintf(stderr, "CUDA kernel failed : %s\n", cudaGetErrorString(err));
         exit(-1);
     }

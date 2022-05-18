@@ -1,4 +1,4 @@
-# Install script for directory: /root/workspace/onnxruntime_inference_test/custom_infer_test
+# Install script for directory: /home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/root/workspace/onnxruntime_inference_test/custom_infer_test/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

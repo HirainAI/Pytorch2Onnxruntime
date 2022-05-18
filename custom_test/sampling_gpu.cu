@@ -7,9 +7,7 @@ All Rights Reserved 2018.
 
 #include <stdio.h>
 #include <stdlib.h>
-
-// #include "cuda_utils.h"
-// #include "sampling_gpu.h"
+#include "sampling_gpu.h"
 #include <cmath>
 
 #define TOTAL_THREADS 1024
@@ -107,8 +105,8 @@ __device__ void __update(float *__restrict__ dists, int *__restrict__ dists_i, i
 }
 
 template <unsigned int block_size>
-__global__ void furthest_point_sampling_kernel(int b, int n, int m, 
-    const float *__restrict__ dataset, float *__restrict__ temp, int *__restrict__ idxs) {
+__global__ void furthest_point_sampling_kernel(int64_t b, int64_t n, int64_t m, 
+    const float *__restrict__ dataset, float *__restrict__ temp, int64_t *__restrict__ idxs) {
     // dataset: (B, N, 3)
     // tmp: (B, N)
     // output:
@@ -228,7 +226,7 @@ __global__ void furthest_point_sampling_kernel(int b, int n, int m,
 }
 
 void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m, 
-    const float *dataset, float *temp, int *idxs) {
+    const float *dataset, float *temp, int64_t *idxs) {
     // dataset: (b, n, 3) float
     // tmp: (b, n) float
     // output:
