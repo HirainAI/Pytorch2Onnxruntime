@@ -20,22 +20,16 @@ All Rights Reserved 2018.
 // points_tensor: (b, n, 3) coordinates of input tensors
 // tmp_tensor:
 // output: (b, m) indices tensor of sampled points
-int furthest_point_sampling_wrapper(int64_t b, int64_t n, int64_t m, 
-    const float* points, float* temp, int64_t* idx) {
+int furthest_point_sampling_wrapper(const float* points, int64_t* idx) {
 
     // construct data ptr
     // const float *points = points_tensor;
     // float *temp = temp_tensor;
     // int *idx = idx_tensor;
-    for (size_t i = 0; i != 3; ++i) {
-    std::cout << *(temp+i) << std::endl;
-    // assert(expected_values_y[i] == f[i]);
-    }
-    furthest_point_sampling_kernel_launcher(b, n, m, points, temp, idx);
-    for (size_t i = 0; i != 3; ++i) {
-    std::cout << *(temp+i) << std::endl;
-    // assert(expected_values_y[i] == f[i]);
-    }
+    float temp[6] = { 1e10, 1e10, 1e10, 1e10, 1e10, 1e10};
+    float* temp_tensor = temp;
+    int64_t m = 6;
+    furthest_point_sampling_kernel_launcher(1, 6, m, points, temp_tensor, idx);
     return 1;
 }
 

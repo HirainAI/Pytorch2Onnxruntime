@@ -4,29 +4,27 @@
 
 #include <iostream>
 #include "custom_op_infer.h"
-// #include "onnxruntime/core/session/onnxruntime_cxx_api.h"
-// #include "onnxruntime/core/session/onnxruntime_c_api.h"
-// #include "core/session/onnxruntime_cxx_api.h"
-// #include "core/providers/cuda/cuda_provider_factory.h"
-// #include "core/session/onnxruntime_c_api.h"
 #include <cassert>
-// #include "onnxruntime/core/providers/cuda/cuda_provider_factory.h"
-// #include <torch/serialize/tensor.h>
-// #include <core/session/onnxruntime_cxx_api.h>
-// #include "onnxruntime/core/providers/cuda/cuda_provider_factory.h"
-// #include <core/session/onnxruntime_c_api.h>
-// #include <core/session/onnxruntime_cxx_api.h>
-// #include "../cmake/external/onnxruntime-extensions/includes/onnxruntime/onnxruntime_c_api.h"
-// #include "../cmake/external/onnxruntime-extensions/includes/onnxruntime/onnxruntime_cxx_api.h"
-// #include <core/providers/tensorrt/tensorrt_provider_factory.h>
-// #include <ATen/cuda/CUDAContext.h>
 #include <vector>
 // #include <THC/THC.h>
 #define USE_CUDA 1
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)
-static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/home/ding/Downloads/Pytorch2Onnxruntime/custom_test/pytorch/model.onnx");
+static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/custom_infer_test/model.onnx");
 using namespace std;
+std::string print_shape(const std::vector<int64_t>& v) {
+  std::stringstream ss("");
+  for (size_t i = 0; i < v.size() - 1; i++)
+    ss << v[i] << "x";
+  ss << v[v.size() - 1];
+  return ss.str();
+}
+
+int calculate_product(const std::vector<int64_t>& v) {
+  int total = 1;
+  for (auto& i : v) total *= i;
+  return total;
+}
 
 // template <typename T1, typename T2, typename T3>
 // void cuda_add(int64_t, T3*, const T1*, const T2*, cudaStream_t compute_stream);
@@ -42,36 +40,41 @@ OrtCUDAProviderOptions CreateDefaultOrtCudaProviderOptionsWithCustomStream(void*
   return cuda_options;
 }
 
-void FpsCustomKernel::Compute(OrtKernelContext* context){
-    const OrtValue* input_X = ort_.KernelContext_GetInput(context, 0);
-    const float* input_X1 = ort_.GetTensorData<float>(input_X);
+template <typename T>
+void FpsCustomKernel<T>::Compute(OrtKernelContext* context){
+          std::cout << "========compute=========" << std::endl;
+         const OrtValue* input_X = ort_.KernelContext_GetInput(context, 0);
+         const float* input_X1 = ort_.GetTensorData<float>(input_X);
           // const T* X_data = reinterpret_cast<const T*>(ort_.GetTensorData<T>(input_X));
           // const OrtValue* input_num_groups = ort_.KernelContext_GetInput(context, 1);
           // const T* num_groups = reinterpret_cast<const T*>(ort_.GetTensorData<const T*>(input_num_groups));
-    std::cout << "input_X1 "<<*input_X1 << std::endl;
+        std::cout << "input_X1 "<<*input_X1 << std::endl;
+        //  const OrtValue* npoint = ort_.KernelContext_GetInput(context, 1);
+        //  const int64_t* npoint_ = ort_.GetTensorData<int64_t>(npoint);
+        //  std::cout << "npoint_ "<<*npoint_ << std::endl;
 
           // Setup output
           // OrtTensorDimensions dimensions(ort_, input_X);    // *dimensions.data() = {1, 6, 3}, dimensions.size() = 3
-          int64_t B = 1;  //1
-          int64_t N = 6;  //6
-          int64_t npoint_ = 3;
-          std::cout << "========compute=========" << std::endl;
-          int64_t dim_values[2] = {1, 3};
+          // int64_t B = 1;  //1
+          // int64_t N = 6;  //6
+          int64_t dim_values[1] = { 6};
           const int64_t* dim_val = dim_values;
-          size_t dim_count = 2;
+          size_t dim_count = 1;
+
           // Ort::MemoryInfo info_cuda("Cuda", OrtAllocatorType::OrtArenaAllocator, 0, OrtMemTypeDefault);
           OrtValue* output = ort_.KernelContext_GetOutput(context, 0, dim_val, dim_count);
           int64_t* out = ort_.GetTensorMutableData<int64_t>(output);
           std::cout << "output "<<*out << std::endl;
           // int* out = (int *)out_tmp;
-          float temp[6] = { 1e10, 1e10, 1e10, 1e10, 1e10, 1e10};
-          float* temp_tensor = temp;
+
           // at::Tensor temp_tensor = torch::zeros({10}, torch::dtype(torch::kFloat32));
 
           // OrtTensorTypeAndShapeInfo* output_info = ort_.GetTensorTypeAndShape(output);
           // ort_.ReleaseTensorTypeAndShapeInfo(output_info);
           // Do computation
-          int a = furthest_point_sampling_wrapper(B, N, npoint_, input_X1, temp_tensor, out);
+          furthest_point_sampling_wrapper(input_X1, out);
+          std::cout << "output "<<*out << std::endl;
+
 }
 
 // void MyCustomKernel::Compute(OrtKernelContext* context) {
@@ -179,9 +182,10 @@ static void TestInference(Ort::Env& env, const std::basic_string<ORTCHAR_T>& mod
   } else {
     std::cout << "Running simple inference with default provider" << std::endl;
   }
-   std::cout << "Running session_options.Add" << std::endl;
+  
 
   if (custom_op_domain_ptr) {
+     std::cout << "Running session_options.Add" << std::endl;
     session_options.Add(custom_op_domain_ptr);
   }
 
@@ -193,6 +197,8 @@ static void TestInference(Ort::Env& env, const std::basic_string<ORTCHAR_T>& mod
   // if session creation passes, model loads fine
   std::cout<<"model_uri.c_str()： "<<model_uri.c_str()<<std::endl;
   Ort::Session session(env, model_uri.c_str(), session_options);
+  std::cout<<"model_uri.c_str()： "<<model_uri.c_str()<<std::endl;
+
   // caller wants to test running the model (not just loading the model)
   if (!test_session_creation_only) {
     // Now run
@@ -228,30 +234,115 @@ static void TestInference(Ort::Env& env, const std::basic_string<ORTCHAR_T>& mod
  int main(int argc, char** argv) {
   std::cout << "Running custom op inference" << std::endl;
 
-  std::vector<Input> inputs(1);
-  Input& input = inputs[0];
-  input.name = "X";
-  input.dims = {3, 2};
-  input.values = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
-  // prepare expected inputs and outputs
-  std::vector<int64_t> expected_dims_y = {3, 2};
-  std::vector<float> expected_values_y = {2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f};
+  // std::vector<Input> inputs(1);
+  // Input& input = inputs[0];
+  // input.name = "X1";
+  // input.dims = {3, 2};
+  // input.values = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
 
-  // 创建定制算子（MyCustomOp）
-  cudaStream_t compute_stream = nullptr;    // 声明一个 cuda stream
-  cudaStreamCreateWithFlags(&compute_stream, cudaStreamNonBlocking);  // 创建一个 cuda stream
-  FpsCustomOp custom_op{onnxruntime::kCudaExecutionProvider, compute_stream};
+  // std::vector<int64_t> inputSize = { batchSize, channels, height, width };
+	// rsize_t inputSizeCount = batchSize * channels * height * width;
 
+	// auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+	// std::clock_t startTime, endTime;
+	// Ort::Value inputTensor = Ort::Value::CreateTensor<float>(memoryInfo, inputVec.data(), inputSizeCount, inputSize.data(), inputSize.size());
+	// startTime = clock();
+	// std::vector<Ort::Value>  outputTensors = session.Run(Ort::RunOptions{ nullptr }, inputNames.data(), &inputTensor, inputNames.size(), outputNames.data(), outputNames.size());
+	// endTime = clock();
+
+	// std::cout << "加速时间:" << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+	// float* output = outputTensors[0].GetTensorMutableData<float>();
+  Ort::Env ort_env= Ort::Env(ORT_LOGGING_LEVEL_INFO, "Default");
+    // 创建定制算子（MyCustomOp）
+  cudaStream_t cuda_compute_stream = nullptr;    // 声明一个 cuda stream
+  cudaStreamCreateWithFlags(&cuda_compute_stream, cudaStreamNonBlocking);  // 创建一个 cuda stream
+  FpsCustomOp custom_op{onnxruntime::kCudaExecutionProvider, cuda_compute_stream};
   
   // 创建定制算子域（CustomOpDomain）
-  Ort::CustomOpDomain custom_op_domain("");
+  Ort::CustomOpDomain custom_op_domain("mydomain");
   // 在定制算子域中添加定制算子
   custom_op_domain.Add(&custom_op);
+
+  Ort::SessionOptions session_options;
+  session_options.Add(custom_op_domain);
+
+  auto cuda_options = CreateDefaultOrtCudaProviderOptionsWithCustomStream(cuda_compute_stream);
+   session_options.AppendExecutionProvider_CUDA(cuda_options);
+  std::string model_url = "/root/workspace/onnxruntime_inference_test/custom_infer_test/model.onnx";
+   Ort::Session  session(ort_env, model_url, session_options); 
+  std::cout<<"model_uri.c_str()： "<<model_url<<std::endl;
+ // print name/shape of inputs
+  std::vector<std::string> input_names = session.GetInputName();
+  std::vector<std::vector<int64_t> > input_shapes = session.GetInputShape();
+  cout << "Input Node Name/Shape (" << input_names.size() << "):" << endl;
+  for (size_t i = 0; i < input_names.size(); i++) {
+    cout << "\t" << input_names[i] << " : " << print_shape(input_shapes[i]) << endl;
+  }
+
+  // print name/shape of outputs
+  std::vector<std::string> output_names = session.GetOutputName();
+  std::vector<std::vector<int64_t> > output_shapes = session.GetOutputShape();
+  cout << "Output Node Name/Shape (" << output_names.size() << "):" << endl;
+  for (size_t i = 0; i < output_names.size(); i++) {
+    cout << "\t" << output_names[i] << " : " << print_shape(output_shapes[i]) << endl;
+  }
+
+  // Assume model has 1 input node and 1 output node.
+  assert(input_names.size() == 1 && output_names.size() == 1);
+
+  // Create a single Ort tensor of random numbers
+  auto input_shape = input_shapes[0];
+  int total_number_elements = calculate_product(input_shape);
+  std::vector<float> input_tensor_values(total_number_elements);
+  std::generate(input_tensor_values.begin(), input_tensor_values.end(), [&] { return rand() % 255; });  // generate random numbers in the range [0, 255]
+  std::vector<Ort::Value> input_tensors;
+  input_tensors.push_back(Ort::Experimental::Value::CreateTensor<float>(input_tensor_values.data(), input_tensor_values.size(), input_shape));
+
+  // double-check the dimensions of the input tensor
+  assert(input_tensors[0].IsTensor() &&
+         input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == input_shape);
+  cout << "\ninput_tensor shape: " << print_shape(input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+ 
+  // std::vector<Input> inputs(2);
+  // auto input = inputs.begin();
+  // input->name = "X1";
+  // input->dims = {1,6,3};
+  // input->values = { 1.5410f, -0.2934f, -2.1788f,  \
+  //                              0.5684f, -1.0845f, -1.3986f ,\
+  //                              0.4033f,  0.8380f, -0.7193f,\
+  //                              -0.4033f ,-0.5966f,  0.1820f,\
+  //                              -0.1863,  0.9658,  0.8852,\
+  //                              -0.8782, -2.5432, -0.5395};
+
+  // input = std::next(input, 1);
+  // input->name = "npoints";
+  // input->dims = {1};
+  // input->values = {6};
+  // prepare expected inputs and outputs
+  std::vector<int64_t> expected_dims_y = {1};
+  std::vector<float> expected_values_y = {2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f};
+    // pass data through model
+    cout << "Running model...";
+  try {
+    auto output_tensors = session.Run(Ort::RunOptions{nullptr},session.GetInputNames(), input_tensors, session.GetOutputNames());
+    cout << "done" << endl;
+
+    // double-check the dimensions of the output tensors
+    // NOTE: the number of output tensors is equal to the number of output nodes specifed in the Run() call
+    assert(output_tensors.size() == session.GetOutputNames().size() &&
+           output_tensors[0].IsTensor());
+    cout << "output_tensor_shape: " << print_shape(output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+
+  } catch (const Ort::Exception& exception) {
+    cout << "ERROR running model inference: " << exception.what() << endl;
+    exit(-1);
+  }
+
   // 进入 TestInference
 #ifdef USE_CUDA
-  TestInference<float>(*ort_env, CUSTOM_OP_MODEL_URI, inputs, "Y", expected_dims_y, expected_values_y, 1,
-                       custom_op_domain, nullptr, nullptr, false, compute_stream);
-  cudaStreamDestroy(compute_stream);
+  // TestInference<float>(ort_env, CUSTOM_OP_MODEL_URI, input_tensors, "Y", expected_dims_y, expected_values_y, 1,
+  //                      custom_op_domain, nullptr, nullptr, false, compute_stream);
+  cudaStreamDestroy(cuda_compute_stream);
 #else
   TestInference<float>(*ort_env, CUSTOM_OP_MODEL_URI, inputs, "Y", expected_dims_y, expected_values_y, 0,
                        custom_op_domain, nullptr);

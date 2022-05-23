@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/customop.dir/custom_op_test.cc.o -o customop  -Wl,-rpath,/root/workspace/onnxruntime/build/Linux/Release /root/workspace/onnxruntime/build/Linux/Release/libonnxruntime.so 

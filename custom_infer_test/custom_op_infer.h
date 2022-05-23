@@ -10,7 +10,7 @@
 #include <atomic>
 #include <mutex>
 #include <algorithm>
-#include <gtest/gtest.h>
+// #include <gtest/gtest.h>
 #include <stdexcept>
 #include <assert.h>
 // #include "../cmake/external/onnxruntime-extensions/includes/onnxruntime/onnxruntime_c_api.h"
@@ -21,12 +21,14 @@
 #include "core/graph/constants.h"
 #include "core/session/onnxruntime_session_options_config_keys.h"
 #include "core/session/onnxruntime_run_options_config_keys.h"
+#include <experimental_onnxruntime_cxx_api.h>
+
 // #include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/utils.h"
 #include <cuda_runtime.h>
-#include "/usr/local/cuda-11.5/targets/x86_64-linux/include/driver_types.h"
-#include "/home/ding/Downloads/onnxruntime/onnxruntime/test/util/include/providers.h"
+#include "/usr/local/cuda-11.2/targets/x86_64-linux/include/driver_types.h"
+#include "/root/workspace/onnxruntime/onnxruntime/test/util/include/providers.h"
 // #include "/root/workspace/onnxruntime/onnxruntime/test/util/include/test_allocator.h"
-#include "/home/ding/Downloads/onnxruntime/onnxruntime/test/shared_lib/test_fixture.h"
+#include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/test_fixture.h"
 // #include "/root/workspace/onnxruntime/onnxruntime/test/shared_lib/custom_op_utils.h"
 #include <gsl/gsl>
 // #include "providers.h"
@@ -69,6 +71,8 @@ struct OrtTensorDimensions : std::vector<int64_t> {
   }
 };
 //定义算子内核
+
+template <typename T>
 struct FpsCustomKernel {
     private:
        Ort::CustomOpApi ort_;
@@ -77,11 +81,16 @@ struct FpsCustomKernel {
     public:
         FpsCustomKernel(Ort::CustomOpApi ort, const OrtKernelInfo* info, void* compute_stream)
       : ort_(ort_), compute_stream_(compute_stream_) {
-        npoint_ = ort_.KernelInfoGetAttribute<int64_t>(info, "npoint");
+        // npoint_ = ort_.KernelInfoGetAttribute<int64_t>(info, "npoint");
        }
         void Compute(OrtKernelContext* context);
+        //     float temp[6] = { 1e10, 1e10, 1e10, 1e10, 1e10, 1e10};
+        //     float* temp_tensor = temp;
+        //    furthest_point_sampling_wrapper(npoint_, input_X1, temp_tensor, out);
+        // }
 };
 
+// void furthest_point_sampling_wrapper(int npoint_, torch::Tensor input_X1, torch::Tensor out);
         //{
         //   const OrtValue* input_X = ort_.KernelContext_GetInput(context, 0);
         //   const float* input_X1 = ort_.GetTensorData<float>(input_X);
@@ -117,21 +126,21 @@ struct FpsCustomKernel {
 // template <typename T>
 
 // 然后定义定制算子的各个操作，各个成员函数均已实现，其中 CreateKernel 会返回前面定义的算子核对象
-struct FpsCustomOp : Ort::CustomOpBase<FpsCustomOp, FpsCustomKernel> {
+struct FpsCustomOp : Ort::CustomOpBase<FpsCustomOp, FpsCustomKernel<float>> {
   explicit FpsCustomOp(const char* provider, void* compute_stream) : provider_(provider), compute_stream_(compute_stream) {}
 
-  void* CreateKernel(Ort::CustomOpApi api, const OrtKernelInfo* info) const { return new FpsCustomKernel(api, info, compute_stream_); };
+  void* CreateKernel(Ort::CustomOpApi api, const OrtKernelInfo* info) const { return new FpsCustomKernel<float>(api, info, compute_stream_); };
   const char* GetName() const { return "fps"; };
   const char* GetExecutionProviderType() const { return provider_; };
 
-  size_t GetInputTypeCount() const { return 2; };
+  size_t GetInputTypeCount() const { return 1; };
   ONNXTensorElementDataType GetInputType(size_t /*index*/) const {
     // Both the inputs need to be necessarily of float type
     return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
   };
 
   size_t GetOutputTypeCount() const { return 1; };
-  ONNXTensorElementDataType GetOutputType(size_t /*index*/) const { return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT; };
+  ONNXTensorElementDataType GetOutputType(size_t /*index*/) const { return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64; };
 
  private:
   const char* provider_;

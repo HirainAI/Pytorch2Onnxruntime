@@ -2,14 +2,14 @@
 
 import torch
 from torch.onnx import register_custom_op_symbolic
-from yaml import parse
+# from yaml import parse
 from torch.onnx.symbolic_helper import parse_args
 
 print(torch.cuda.is_available())
 print(torch.__version__)
 print(torch.version.cuda)
 
-torch.ops.load_library("/home/ding/Downloads/Pytorch2Onnxruntime/custom_test/build/lib.linux-x86_64-3.8/fps.cpython-38-x86_64-linux-gnu.so")
+torch.ops.load_library("/root/workspace/onnxruntime_inference_test/custom_test/build/lib.linux-x86_64-3.8/fps.cpython-38-x86_64-linux-gnu.so")
 
 def register_custom_op():
     def fps(g, B, N, npoint, xyz, temp, output):
