@@ -127,10 +127,10 @@ struct FpsCustomKernel {
 
 // 然后定义定制算子的各个操作，各个成员函数均已实现，其中 CreateKernel 会返回前面定义的算子核对象
 struct FpsCustomOp : Ort::CustomOpBase<FpsCustomOp, FpsCustomKernel<float>> {
-  explicit FpsCustomOp(const char* provider, void* compute_stream) : provider_(provider), compute_stream_(compute_stream) {}
+  // explicit FpsCustomOp(const char* provider, void* compute_stream) : provider_(provider), compute_stream_(compute_stream) {}
 
-  void* CreateKernel(Ort::CustomOpApi api, const OrtKernelInfo* info) const { return new FpsCustomKernel<float>(api, info, compute_stream_); };
-  const char* GetName() const { return "fps"; };
+  void* CreateKernel(Ort::CustomOpApi api, const OrtKernelInfo* info) const { return new FpsCustomKernel<float>(api, info); };
+  const char* GetName() const { return "FurthestPointSample_0"; };
   const char* GetExecutionProviderType() const { return provider_; };
 
   size_t GetInputTypeCount() const { return 1; };
@@ -142,9 +142,9 @@ struct FpsCustomOp : Ort::CustomOpBase<FpsCustomOp, FpsCustomKernel<float>> {
   size_t GetOutputTypeCount() const { return 1; };
   ONNXTensorElementDataType GetOutputType(size_t /*index*/) const { return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64; };
 
- private:
-  const char* provider_;
-  void* compute_stream_;
+//  private:
+//   const char* provider_;
+//   void* compute_stream_;
 };
 
 struct MyCustomKernel {

@@ -8,7 +8,7 @@
 
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)
-static constexpr PATH_TYPE MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/custom_infer_test/model.onnx");
+static constexpr PATH_TYPE MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/PyTorchCustomOperator/pytorch_custom_op/model_ex.onnx");
 
 template <typename T>
 bool TestInference(Ort::Env& env, T model_uri,
@@ -102,13 +102,13 @@ int main(int argc, char** argv) {
 //   input->name = "npoints";
 //   input->dims = {1};
 //   input->values = {6};
-    std::vector<int64_t> expected_dims_y = {1};
-  std::vector<float> expected_values_y = {2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f};
+  //   std::vector<int64_t> expected_dims_y = {1};
+  // std::vector<float> expected_values_y = {2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f};
   // std::cout<<*
   // prepare expected inputs and outputs
   // prepare expected inputs and outputs
-  // std::vector<int64_t> expected_dims_y = {3, 2, 1, 2};
-  // std::vector<float> expected_values_y = { 3.0000f, -1.0000f, -1.0000f,  1.0000f, 2.9996f, -0.9996f, -0.9999f,  0.9999f,  -0.9996f,  2.9996f, -1.0000f,  1.0000f};
+  std::vector<int64_t> expected_dims_y = {3, 2, 1, 2};
+  std::vector<float> expected_values_y = { 3.0000f, -1.0000f, -1.0000f,  1.0000f, 2.9996f, -0.9996f, -0.9999f,  0.9999f,  -0.9996f,  2.9996f, -1.0000f,  1.0000f};
 
   GroupNormCustomOp custom_op;
   // Ort::custom_op_domain("mydomain");

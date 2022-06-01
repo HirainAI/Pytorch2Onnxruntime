@@ -269,19 +269,19 @@ static void TestInference(Ort::Env& env, const std::basic_string<ORTCHAR_T>& mod
   auto cuda_options = CreateDefaultOrtCudaProviderOptionsWithCustomStream(cuda_compute_stream);
    session_options.AppendExecutionProvider_CUDA(cuda_options);
   std::string model_url = "/root/workspace/onnxruntime_inference_test/custom_infer_test/model.onnx";
-   Ort::Session  session(ort_env, model_url, session_options); 
-  std::cout<<"model_uri.c_str()： "<<model_url<<std::endl;
- // print name/shape of inputs
-  std::vector<std::string> input_names = session.GetInputName();
-  std::vector<std::vector<int64_t> > input_shapes = session.GetInputShape();
+  Ort::Experimental::Session session = Ort::Experimental::Session(ort_env, model_url, session_options);  // access experimental components via the Experimental namespace
+
+  // print name/shape of inputs
+  std::vector<std::string> input_names = session.GetInputNames();
+  std::vector<std::vector<int64_t> > input_shapes = session.GetInputShapes();
   cout << "Input Node Name/Shape (" << input_names.size() << "):" << endl;
   for (size_t i = 0; i < input_names.size(); i++) {
     cout << "\t" << input_names[i] << " : " << print_shape(input_shapes[i]) << endl;
   }
 
   // print name/shape of outputs
-  std::vector<std::string> output_names = session.GetOutputName();
-  std::vector<std::vector<int64_t> > output_shapes = session.GetOutputShape();
+  std::vector<std::string> output_names = session.GetOutputNames();
+  std::vector<std::vector<int64_t> > output_shapes = session.GetOutputShapes();
   cout << "Output Node Name/Shape (" << output_names.size() << "):" << endl;
   for (size_t i = 0; i < output_names.size(); i++) {
     cout << "\t" << output_names[i] << " : " << print_shape(output_shapes[i]) << endl;
@@ -296,28 +296,25 @@ static void TestInference(Ort::Env& env, const std::basic_string<ORTCHAR_T>& mod
   std::vector<float> input_tensor_values(total_number_elements);
   std::generate(input_tensor_values.begin(), input_tensor_values.end(), [&] { return rand() % 255; });  // generate random numbers in the range [0, 255]
   std::vector<Ort::Value> input_tensors;
-  input_tensors.push_back(Ort::Experimental::Value::CreateTensor<float>(input_tensor_values.data(), input_tensor_values.size(), input_shape));
+   Ort::MemoryInfo info_cuda("Cuda", OrtAllocatorType::OrtArenaAllocator, 0, OrtMemTypeDefault);
+  auto memory_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
+  std::vector<const char*> input_names;
+  for (size_t i = 0; i < inputs.size(); i++) {
+    input_names.emplace_back(inputs[i].name);
+    input_tensors.emplace_back(Ort::Value::CreateTensor<float>(memory_info, const_cast<float*>(inputs[i].values.data()), inputs[i].values.size(), inputs[i].dims.data(), inputs[i].dims.size()));
+  }
 
-  // double-check the dimensions of the input tensor
-  assert(input_tensors[0].IsTensor() &&
-         input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == input_shape);
-  cout << "\ninput_tensor shape: " << print_shape(input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
- 
-  // std::vector<Input> inputs(2);
-  // auto input = inputs.begin();
-  // input->name = "X1";
-  // input->dims = {1,6,3};
-  // input->values = { 1.5410f, -0.2934f, -2.1788f,  \
-  //                              0.5684f, -1.0845f, -1.3986f ,\
-  //                              0.4033f,  0.8380f, -0.7193f,\
-  //                              -0.4033f ,-0.5966f,  0.1820f,\
-  //                              -0.1863,  0.9658,  0.8852,\
-  //                              -0.8782, -2.5432, -0.5395};
+  Ort::Value* input = &input_tensors[0];
+  auto type_info1 = input->GetTensorTypeAndShapeInfo();
+  std::cout << type_info1.GetShape() << std::endl;
 
-  // input = std::next(input, 1);
-  // input->name = "npoints";
-  // input->dims = {1};
-  // input->values = {6};
+  // input_tensors.push_back(Ort::Experimental::Value::CreateTensor<float>(input_tensor_values.data(), input_tensor_values.size(), input_shape));
+
+  // // double-check the dimensions of the input tensor
+  // assert(input_tensors[0].IsTensor() &&
+  //        input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == input_shape);
+  // cout << "\ninput_tensor shape: " << print_shape(input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+
   // prepare expected inputs and outputs
   std::vector<int64_t> expected_dims_y = {1};
   std::vector<float> expected_values_y = {2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f};
