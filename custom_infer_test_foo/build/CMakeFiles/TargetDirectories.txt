@@ -1,3 +1,0 @@
-/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/edit_cache.dir
-/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/rebuild_cache.dir
-/home/ding/Downloads/Pytorch2Onnxruntime/custom_infer_test_foo/build/CMakeFiles/customop.dir

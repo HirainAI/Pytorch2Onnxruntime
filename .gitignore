@@ -1,1 +1,5 @@
 *.o
+.vscode
+build/
+dist/
+fps.egg-info/
