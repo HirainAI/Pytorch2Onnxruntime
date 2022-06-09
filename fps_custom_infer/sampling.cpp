@@ -9,8 +9,10 @@ All Rights Reserved 2018.
 // #include <ATen/cuda/CUDAContext.h>
 #include <vector>
 // #include <THC/THC.h>
+#include <limits>
 #include <iostream>
 #include "sampling_gpu.h"
+
 
 // extern THCState *state;
 
@@ -26,7 +28,13 @@ int furthest_point_sampling_wrapper(int64_t input_points_num, int64_t output_poi
     // const float *points = points_tensor;
     // float *temp = temp_tensor;
     // int *idx = idx_tensor;
-    float temp[input_points_num] = { };
+  
+    float temp[input_points_num] = {0};
+    std::cout << "std::numeric_limits<float>::max() = " << std::numeric_limits<float>::max() << std::endl;
+    for (size_t i = 0; i < input_points_num; i++)
+    {
+        temp[i]=std::numeric_limits<float>::max();
+    }
     float* temp_tensor = temp;
     furthest_point_sampling_kernel_launcher(1, input_points_num, output_points_num, input_points, temp_tensor, idx);
     return 1;

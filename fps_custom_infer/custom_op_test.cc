@@ -12,7 +12,7 @@
 #define USE_CUDA 1
 typedef const char* PATH_TYPE;
 #define TSTR(X) (X)
-static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/custom_infer_test_restruct/fps_model1.onnx");
+static constexpr PATH_TYPE CUSTOM_OP_MODEL_URI = TSTR("/root/workspace/onnxruntime_inference_test/fps_custom_infer/fps_model1.onnx");
 
 #define ORT_ABORT_ON_ERROR(expr)                             \
   do {                                                       \

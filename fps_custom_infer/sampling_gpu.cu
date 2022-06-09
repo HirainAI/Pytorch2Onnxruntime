@@ -111,7 +111,7 @@ __global__ void furthest_point_sampling_kernel(int64_t b, int64_t n, int64_t m,
     // tmp: (B, N)
     // output:
     //      idx: (B, M)
-
+    // printf(" run furthest_point_sampling_kernel_launcher");
     if (m <= 0) return;
     // shared memory can be accessed by all the threads inside the block
     __shared__ float dists[block_size];     // store distances
@@ -128,7 +128,8 @@ __global__ void furthest_point_sampling_kernel(int64_t b, int64_t n, int64_t m,
     int old = 0;
     if (threadIdx.x == 0)
     idxs[0] = old;                          // the first point to be sampled -> picked the first point in n directly
-
+    printf("idxs[0] : %d",idxs[0] );
+    
     // synchronizing... as shared memory accessed by all the threads in the block, make idxs[0] visible to all threads?
     __syncthreads();
     for (int j = 1; j < m; j++) {           // the first point already picked (seed point), loop m-1 to be sampled pts
@@ -234,7 +235,7 @@ void furthest_point_sampling_kernel_launcher(int64_t b, int64_t n, int64_t m,
 
     cudaError_t err;
     unsigned int n_threads = opt_n_threads(n);    // get the optimal num of threads? 1-dim structure
-
+    printf("n threads:%u",n_threads);
     // set the block size in template
     // grid size equal to batch size
     // block size equal to n_threads according to n input num of points
@@ -280,7 +281,7 @@ __global__ void furthest_point_sampling_with_dist_kernel(int b, int n, int m,
     // tmp: (B, N)
     // output:
     //      idx: (B, M)
-
+    // printf("cuda kernel running dfps");
     if (m <= 0) return;
     __shared__ float dists[block_size];
     __shared__ int dists_i[block_size];
@@ -400,7 +401,7 @@ void furthest_point_sampling_with_dist_kernel_launcher(int b, int n, int m,
 
     cudaError_t err;
     unsigned int n_threads = opt_n_threads(n);
-
+    printf("n_threads:%u",n_threads);
     switch (n_threads) {
         case 1024:
         furthest_point_sampling_with_dist_kernel<1024><<<b, n_threads, 0, stream>>>(b, n, m, dataset, temp, idxs); break;
